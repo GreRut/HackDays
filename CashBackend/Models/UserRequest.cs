@@ -1,8 +1,7 @@
 namespace CashBackend.Models
 {
-    public class User
+    public class UserRequest
     {
-        public int Id { get; set; }
         public required string Name { get; set; }
     }
 }
