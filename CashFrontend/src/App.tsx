@@ -1,4 +1,5 @@
 import './App.css'
+import UserList from './components/listUsers'
 
 function App() {
 
@@ -8,6 +9,7 @@ function App() {
         Hello world!
       </h1>
       <button className="btn btn-primary">Button</button>
+      <UserList />
     </div>
   )
 }
