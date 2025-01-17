@@ -1,4 +1,3 @@
-
 using CashBackend.Data;
 using CashBackend.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -80,7 +79,8 @@ namespace CashBackend.Controllers
                 Id = it.Id,
                 Name = it. Name,
                 Price = it.Price,
-                UserId = it.UserId
+                UserId = it.UserId,
+                User = it.User
             }).ToListAsync();
 
             int totalExpenses = _items.Sum(i => i.Price);

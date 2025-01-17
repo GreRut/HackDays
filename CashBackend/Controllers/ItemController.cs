@@ -25,7 +25,41 @@ namespace CashBackend.Controllers
                 Name = it.Name,
                 Price = it.Price,
                 UserId = it.UserId,
+                User = it.User
             }).ToListAsync();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ItemPriceResponse>> PostItem(ItemRequest request)
+        {
+
+            var user = await _context.Users.FindAsync(request.UserId);
+
+            if (user == null)
+            {
+                return NotFound($"User with ID {request.UserId} not found.");
+            }
+
+            var itemRequest = new Item()
+            {
+                Name = request.Name,
+                Price = request.Price,
+                UserId = request.UserId,
+                User = user,
+            };
+
+            _context.Items.Add(itemRequest);
+            await _context.SaveChangesAsync();
+
+            var itemResponse = new ItemPriceResponse
+            {
+                Id = itemRequest.Id,
+                Name = itemRequest.Name,
+                Price = itemRequest.Price,
+                UserId = itemRequest.UserId,
+                User = itemRequest.User
+            };
+            return CreatedAtAction(nameof(GetItem), new { id = itemRequest.Id }, itemResponse);
         }
 
         [HttpGet("{id}")]
@@ -43,6 +77,7 @@ namespace CashBackend.Controllers
                 Name = item.Name,
                 Price = item.Price,
                 UserId = item.UserId,
+                User = item.User
 
             };
             return Ok(response);

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace CashBackend.Models
 {
     public class ItemPriceResponse
@@ -11,5 +6,7 @@ namespace CashBackend.Models
         public required string Name { get; set; }
         public required int Price { get; set; }
         public required int UserId { get; set; }
+        public virtual required User User {get; set;}
+        
     }
 }
