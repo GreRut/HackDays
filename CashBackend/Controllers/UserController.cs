@@ -78,6 +78,7 @@ namespace CashBackend.Controllers
             var _items = await _context.Items.Select(it => new ItemPriceResponse
             {
                 Id = it.Id,
+                Name = it. Name,
                 Price = it.Price,
                 UserId = it.UserId
             }).ToListAsync();
@@ -87,7 +88,7 @@ namespace CashBackend.Controllers
 
             int fairShare = totalExpenses / numberOfUsers;
 
-            Dictionary<int, int> netBalances = new Dictionary<int, int>(); 
+            Dictionary<int, int> netBalances = []; 
             foreach (var u in _users)
             {
                 int userExpenses = _items.Where(i => i.UserId == u.Id).Sum(i => i.Price);

@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using CashBackend.Data;
 using CashBackend.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace CashBackend.Controllers
 {
@@ -21,16 +16,36 @@ namespace CashBackend.Controllers
             _context = context;
         }
 
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<Item>>> GetItems()
-        // {
-        //     return await _context.Items.Select(it => new Item
-        //     {
-        //         Id = it.Id,
-        //         Name = it.Name,
-        //         Payment = it.Payment
-        //     }).ToListAsync();
-        // }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ItemPriceResponse>>> GetItems()
+        {
+            return await _context.Items.Select(it => new ItemPriceResponse
+            {
+                Id = it.Id,
+                Name = it.Name,
+                Price = it.Price,
+                UserId = it.UserId,
+            }).ToListAsync();
+        }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponse>> GetItem(int id)
+        {
+            var item = await _context.Items.FindAsync(id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+            var response = new ItemPriceResponse
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Price = item.Price,
+                UserId = item.UserId,
+
+            };
+            return Ok(response);
+        }
     }
 }
