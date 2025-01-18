@@ -158,9 +158,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["User"];
-                        "application/json": components["schemas"]["User"];
-                        "text/json": components["schemas"]["User"];
+                        "text/plain": components["schemas"]["UserResponse"];
+                        "application/json": components["schemas"]["UserResponse"];
+                        "text/json": components["schemas"]["UserResponse"];
                     };
                 };
             };
@@ -270,6 +270,8 @@ export interface components {
             /** Format: int32 */
             id?: number;
             name: string | null;
+            /** Format: double */
+            balance?: number;
         };
         UserRequest: {
             name: string | null;
@@ -278,6 +280,8 @@ export interface components {
             /** Format: int32 */
             id?: number;
             name: string | null;
+            /** Format: double */
+            balance?: number;
         };
     };
     responses: never;

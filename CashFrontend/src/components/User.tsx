@@ -4,7 +4,7 @@ import { components } from "../lib/api/v1";
 
 type User = components["schemas"]["User"];
 
-const User = ({ id, name }: User) => {
+const User = ({ id, name, balance }: User) => {
   return (
     <div>
       <Link
@@ -12,8 +12,9 @@ const User = ({ id, name }: User) => {
         params={{
           id: `${id}`,
         }}
-      className="text-white">
-        {name}
+        className="text-white"
+      >
+        {name} {balance}
       </Link>
     </div>
   );
