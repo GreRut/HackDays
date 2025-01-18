@@ -257,7 +257,7 @@ export interface components {
             price: number;
             /** Format: int32 */
             userId: number;
-            user: components["schemas"]["User"];
+            user?: components["schemas"]["User"];
         };
         ItemRequest: {
             name: string | null;
@@ -265,7 +265,6 @@ export interface components {
             price: number;
             /** Format: int32 */
             userId: number;
-            user: components["schemas"]["User"];
         };
         User: {
             /** Format: int32 */
