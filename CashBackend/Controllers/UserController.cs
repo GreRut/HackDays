@@ -21,6 +21,7 @@ namespace CashBackend.Controllers
         {
             return await _context.Users.Select(it => new UserResponse
             {
+                Id = it.Id,
                 Name = it.Name,
             }).ToListAsync();
         }
