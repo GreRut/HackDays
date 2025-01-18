@@ -45,10 +45,47 @@ namespace CashBackend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserDebts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FromUserId = table.Column<int>(type: "int", nullable: false),
+                    ToUserId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserDebts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserDebts_Users_FromUserId",
+                        column: x => x.FromUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserDebts_Users_ToUserId",
+                        column: x => x.ToUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Items_UserId",
                 table: "Items",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserDebts_FromUserId",
+                table: "UserDebts",
+                column: "FromUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserDebts_ToUserId",
+                table: "UserDebts",
+                column: "ToUserId");
         }
 
         /// <inheritdoc />
@@ -56,6 +93,9 @@ namespace CashBackend.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "UserDebts");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -67,6 +67,33 @@ namespace CashBackend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("CashBackend.Models.UserDebt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FromUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ToUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("UserDebts");
+                });
+
             modelBuilder.Entity("CashBackend.Models.Item", b =>
                 {
                     b.HasOne("CashBackend.Models.User", "User")
@@ -76,6 +103,32 @@ namespace CashBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CashBackend.Models.UserDebt", b =>
+                {
+                    b.HasOne("CashBackend.Models.User", "FromUser")
+                        .WithMany("Payees")
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CashBackend.Models.User", "ToUser")
+                        .WithMany("Payers")
+                        .HasForeignKey("ToUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
+                });
+
+            modelBuilder.Entity("CashBackend.Models.User", b =>
+                {
+                    b.Navigation("Payees");
+
+                    b.Navigation("Payers");
                 });
 #pragma warning restore 612, 618
         }
