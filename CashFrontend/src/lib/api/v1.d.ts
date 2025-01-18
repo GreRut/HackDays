@@ -272,6 +272,20 @@ export interface components {
             name: string | null;
             /** Format: double */
             balance?: number;
+            payees?: components["schemas"]["UserDebt"][] | null;
+            payers?: components["schemas"]["UserDebt"][] | null;
+        };
+        UserDebt: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            fromUserId?: number;
+            fromUser?: components["schemas"]["User"];
+            /** Format: int32 */
+            toUserId?: number;
+            toUser?: components["schemas"]["User"];
+            /** Format: double */
+            amount?: number;
         };
         UserRequest: {
             name: string | null;

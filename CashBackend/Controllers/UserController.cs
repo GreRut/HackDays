@@ -75,70 +75,77 @@ namespace CashBackend.Controllers
 
             return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
         }
-        
+
         private void RecalculateBalances(List<User> users, List<Item> items)
         {
             decimal totalExpenses = items.Sum(i => i.Price);
             int userCount = users.Count;
             decimal fairShare = userCount > 0 ? totalExpenses / userCount : 0;
 
-            var userContributions = users.ToDictionary(
-                u => u.Id,
-                u => items.Where(i => i.UserId == u.Id).Sum(i => i.Price)
-            );
+            var userContributions = items
+                .GroupBy(i => i.UserId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Sum(i => i.Price)
+                );
+
+            _context.UserDebts.RemoveRange(_context.UserDebts);
+            _context.SaveChanges();
 
             foreach (var user in users)
             {
-                user.Balance = userContributions[user.Id] - fairShare;
+                userContributions.TryGetValue(user.Id, out var contribution);
+                user.Balance = contribution - fairShare;
+            }
+
+            foreach (var user in users)
+            {
+                foreach (var otherUser in users)
+                {
+                    if (user.Id == otherUser.Id) continue;
+
+                    decimal difference = user.Balance - otherUser.Balance;
+
+                    if (difference < 0)
+                    {
+                        _context.UserDebts.Add(new UserDebt
+                        {
+                            FromUserId = user.Id,
+                            ToUserId = otherUser.Id,
+                            Amount = -difference
+                        });
+                    }
+                }
             }
 
             _context.SaveChanges();
         }
-
         [HttpGet("{id}/detailed-balance")]
         public async Task<ActionResult> GetDetailedUserBalances(int id)
         {
-            var users = await _context.Users
-                .Select(u => new
-                {
-                    u.Id,
-                    u.Name,
-                    u.Balance
-                }).ToListAsync();
+            var user = await _context.Users
+                .Include(u => u.Payees)
+                .ThenInclude(debt => debt.ToUser)
+                .Include(u => u.Payers)
+                .ThenInclude(debt => debt.FromUser)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            var items = await _context.Items
-                .Select(i => new
-                {
-                    i.Id,
-                    i.Name,
-                    i.Price,
-                    i.UserId
-                }).ToListAsync();
-
-            var user = users.FirstOrDefault(u => u.Id == id);
             if (user == null)
             {
                 return NotFound($"User with ID {id} not found.");
             }
 
             var detailedBalances = new List<string>();
-            foreach (var otherUser in users)
+
+            foreach (var debt in user.Payees)
             {
-                if (otherUser.Id == id)
-                    continue;
-
-                decimal difference = user.Balance - otherUser.Balance;
-
-                if (difference > 0)
-                {
-                    detailedBalances.Add($"{user.Name} is owed {difference:C} by {otherUser.Name}.");
-                }
-                else if (difference < 0)
-                {
-                    detailedBalances.Add($"{user.Name} owes {-difference:C} to {otherUser.Name}.");
-                }
+                detailedBalances.Add($"{user.Name} owes {debt.Amount:C} to {debt.ToUser.Name}.");
             }
 
+            foreach (var debt in user.Payers)
+            {
+                detailedBalances.Add($"{debt.FromUser.Name} owes {debt.Amount:C} to {user.Name}.");
+            }
             return Ok(detailedBalances);
         }
     }

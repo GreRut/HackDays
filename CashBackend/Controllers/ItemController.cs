@@ -75,14 +75,40 @@ namespace CashBackend.Controllers
             int userCount = users.Count;
             decimal fairShare = userCount > 0 ? totalExpenses / userCount : 0;
 
-            var userContributions = users.ToDictionary(
-                u => u.Id,
-                u => items.Where(i => i.UserId == u.Id).Sum(i => i.Price)
-            );
+            var userContributions = items
+                .GroupBy(i => i.UserId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Sum(i => i.Price)
+                );
+
+            _context.UserDebts.RemoveRange(_context.UserDebts);
+            _context.SaveChanges();
 
             foreach (var user in users)
             {
-                user.Balance = userContributions[user.Id] - fairShare;
+                userContributions.TryGetValue(user.Id, out var contribution);
+                user.Balance = contribution - fairShare;
+            }
+
+            foreach (var user in users)
+            {
+                foreach (var otherUser in users)
+                {
+                    if (user.Id == otherUser.Id) continue;
+
+                    decimal difference = user.Balance - otherUser.Balance;
+
+                    if (difference < 0)
+                    {
+                        _context.UserDebts.Add(new UserDebt
+                        {
+                            FromUserId = user.Id,
+                            ToUserId = otherUser.Id,
+                            Amount = -difference
+                        });
+                    }
+                }
             }
 
             _context.SaveChanges();
