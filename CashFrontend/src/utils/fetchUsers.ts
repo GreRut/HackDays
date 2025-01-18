@@ -3,12 +3,20 @@ import type { paths } from "../lib/api/v1";
 
 const client = createClient<paths>({ baseUrl: "http://localhost:5274/" });
 
-export const userListFetch = await client.GET("/api/Users", {
-});
+export const userListFetch = await client.GET("/api/Users", {});
 
-export const userFetch = (id: number) => client.GET("/api/Users/{id}", {
+export const userFetch = (id: number) =>
+  client.GET("/api/Users/{id}", {
     params: {
-        path: { id: id },
-        query: undefined,
-    }
-});
+      path: { id: id },
+      query: undefined,
+    },
+  });
+
+export const userDebtFetch = (id: number) =>
+  client.GET("/api/Users/{id}/detailed-balance", {
+    params: {
+      path: { id: id },
+      query: undefined,
+    },
+  });
