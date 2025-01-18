@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CashBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250118123351_init")]
+    [Migration("20250118175029_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -56,6 +56,10 @@ namespace CashBackend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
