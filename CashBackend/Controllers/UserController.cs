@@ -75,7 +75,7 @@ namespace CashBackend.Controllers
 
             return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
         }
-
+        
         private void RecalculateBalances(List<User> users, List<Item> items)
         {
             decimal totalExpenses = items.Sum(i => i.Price);
@@ -98,54 +98,44 @@ namespace CashBackend.Controllers
         [HttpGet("{id}/detailed-balance")]
         public async Task<ActionResult> GetDetailedUserBalances(int id)
         {
-            var _users = await _context.Users.Select(it => new UserResponse
-            {
-                Id = it.Id,
-                Name = it.Name,
-            }).ToListAsync();
+            var users = await _context.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Name,
+                    u.Balance
+                }).ToListAsync();
 
-            var _items = await _context.Items.Select(it => new ItemPriceResponse
-            {
-                Id = it.Id,
-                Name = it.Name,
-                Price = it.Price,
-                UserId = it.UserId,
-                User = it.User
-            }).ToListAsync();
+            var items = await _context.Items
+                .Select(i => new
+                {
+                    i.Id,
+                    i.Name,
+                    i.Price,
+                    i.UserId
+                }).ToListAsync();
 
-            var user = _users.FirstOrDefault(u => u.Id == id);
+            var user = users.FirstOrDefault(u => u.Id == id);
             if (user == null)
+            {
                 return NotFound($"User with ID {id} not found.");
-
-            int totalExpenses = _items.Sum(i => i.Price);
-            int numberOfUsers = _users.Count;
-            int fairShare = totalExpenses / numberOfUsers;
-
-            var userContributions = _users.ToDictionary(
-                u => u.Id,
-                u => _items.Where(i => i.UserId == u.Id).Sum(i => i.Price)
-            );
-
-            var userBalances = userContributions.ToDictionary(
-                entry => entry.Key,
-                entry => entry.Value - fairShare
-            );
+            }
 
             var detailedBalances = new List<string>();
-            foreach (var otherUser in _users)
+            foreach (var otherUser in users)
             {
                 if (otherUser.Id == id)
                     continue;
 
-                int difference = userBalances[id] - userBalances[otherUser.Id];
+                decimal difference = user.Balance - otherUser.Balance;
 
                 if (difference > 0)
                 {
-                    detailedBalances.Add($"{user.Name} is owed {difference} by {otherUser.Name}.");
+                    detailedBalances.Add($"{user.Name} is owed {difference:C} by {otherUser.Name}.");
                 }
                 else if (difference < 0)
                 {
-                    detailedBalances.Add($"{user.Name} owes {-difference} to {otherUser.Name}.");
+                    detailedBalances.Add($"{user.Name} owes {-difference:C} to {otherUser.Name}.");
                 }
             }
 
