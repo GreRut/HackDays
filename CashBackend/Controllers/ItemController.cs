@@ -45,11 +45,14 @@ namespace CashBackend.Controllers
                 Name = request.Name,
                 Price = request.Price,
                 UserId = request.UserId,
-                User = user,
             };
 
             _context.Items.Add(itemRequest);
             await _context.SaveChangesAsync();
+
+            var createdItem = await _context.Items
+                                    .Include(i => i.User)
+                                    .FirstOrDefaultAsync(i => i.Id == itemRequest.Id);
 
             var itemResponse = new ItemPriceResponse
             {
