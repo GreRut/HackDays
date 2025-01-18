@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   
     return (
       <div>
-          <UserList  />
+          <UserList />
       </div>
     );
   }

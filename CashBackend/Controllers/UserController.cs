@@ -37,6 +37,7 @@ namespace CashBackend.Controllers
             }
             var response = new UserResponse
             {
+                Id = user.Id,
                 Name = user.Name,
             };
             return Ok(response);
