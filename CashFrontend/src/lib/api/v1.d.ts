@@ -266,6 +266,20 @@ export interface components {
             /** Format: int32 */
             userId: number;
         };
+        PayeeResponse: {
+            /** Format: int32 */
+            payeeId?: number;
+            payeeName?: string | null;
+            /** Format: double */
+            amountOwed?: number;
+        };
+        PayerResponse: {
+            /** Format: int32 */
+            payerId?: number;
+            payerName?: string | null;
+            /** Format: double */
+            amountOwed?: number;
+        };
         User: {
             /** Format: int32 */
             id?: number;
@@ -293,9 +307,11 @@ export interface components {
         UserResponse: {
             /** Format: int32 */
             id?: number;
-            name: string | null;
+            name?: string | null;
             /** Format: double */
             balance?: number;
+            payees?: components["schemas"]["PayeeResponse"][] | null;
+            payers?: components["schemas"]["PayerResponse"][] | null;
         };
     };
     responses: never;

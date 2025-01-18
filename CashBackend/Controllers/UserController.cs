@@ -19,13 +19,35 @@ namespace CashBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserResponse>>> GetUsers()
         {
-            return await _context.Users.Select(it => new UserResponse
+            var users = await _context.Users
+                .Include(u => u.Payees) // Include users this user owes
+                .ThenInclude(debt => debt.ToUser)
+                .Include(u => u.Payers) // Include users who owe this user
+                .ThenInclude(debt => debt.FromUser)
+                .ToListAsync();
+
+            var userResponses = users.Select(user => new UserResponse
             {
-                Id = it.Id,
-                Name = it.Name,
-                Balance = it.Balance
-            }).ToListAsync();
+                Id = user.Id,
+                Name = user.Name,
+                Balance = user.Balance,
+                Payees = user.Payees.Select(debt => new PayeeResponse
+                {
+                    PayeeId = debt.ToUserId,
+                    PayeeName = debt.ToUser.Name,
+                    AmountOwed = debt.Amount
+                }).ToList(),
+                Payers = user.Payers.Select(debt => new PayerResponse
+                {
+                    PayerId = debt.FromUserId,
+                    PayerName = debt.FromUser.Name,
+                    AmountOwed = debt.Amount
+                }).ToList()
+            });
+
+            return Ok(userResponses);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<UserResponse>> GetUser(int id)
@@ -44,7 +66,6 @@ namespace CashBackend.Controllers
             };
             return Ok(response);
         }
-
         [HttpPost]
         public async Task<ActionResult<UserResponse>> PostUser(UserRequest request)
         {
@@ -58,19 +79,45 @@ namespace CashBackend.Controllers
                 Name = request.Name
             };
 
+            // Add the new user to the database
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            var users = await _context.Users.ToListAsync();
+            // Recalculate balances and update payees/payers
+            var users = await _context.Users
+                .Include(u => u.Payees)
+                .Include(u => u.Payers)
+                .ToListAsync();
             var items = await _context.Items.ToListAsync();
 
             RecalculateBalances(users, items);
 
+            // Fetch the updated newUser with payees and payers
+            var updatedUser = await _context.Users
+                .Include(u => u.Payees)
+                .ThenInclude(debt => debt.ToUser)
+                .Include(u => u.Payers)
+                .ThenInclude(debt => debt.FromUser)
+                .FirstOrDefaultAsync(u => u.Id == newUser.Id);
+
+            // Create the response object
             var response = new UserResponse
             {
-                Id = newUser.Id,
-                Name = newUser.Name,
-                Balance = 0,
+                Id = updatedUser.Id,
+                Name = updatedUser.Name,
+                Balance = updatedUser.Balance,
+                Payees = updatedUser.Payees.Select(debt => new PayeeResponse
+                {
+                    PayeeId = debt.ToUserId,
+                    PayeeName = debt.ToUser.Name,
+                    AmountOwed = debt.Amount
+                }).ToList(),
+                Payers = updatedUser.Payers.Select(debt => new PayerResponse
+                {
+                    PayerId = debt.FromUserId,
+                    PayerName = debt.FromUser.Name,
+                    AmountOwed = debt.Amount
+                }).ToList()
             };
 
             return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
