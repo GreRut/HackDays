@@ -62,7 +62,30 @@ namespace CashBackend.Controllers
                 UserId = itemRequest.UserId,
                 User = itemRequest.User
             };
+
+            var users = await _context.Users.ToListAsync();
+            var items = await _context.Items.ToListAsync();
+            RecalculateBalances(users, items);
+
             return CreatedAtAction(nameof(GetItem), new { id = itemRequest.Id }, itemResponse);
+        }
+        private void RecalculateBalances(List<User> users, List<Item> items)
+        {
+            decimal totalExpenses = items.Sum(i => i.Price);
+            int userCount = users.Count;
+            decimal fairShare = userCount > 0 ? totalExpenses / userCount : 0;
+
+            var userContributions = users.ToDictionary(
+                u => u.Id,
+                u => items.Where(i => i.UserId == u.Id).Sum(i => i.Price)
+            );
+
+            foreach (var user in users)
+            {
+                user.Balance = userContributions[user.Id] - fairShare;
+            }
+
+            _context.SaveChanges();
         }
 
         [HttpGet("{id}")]
