@@ -20,9 +20,9 @@ namespace CashBackend.Controllers
         public async Task<ActionResult<IEnumerable<UserResponse>>> GetUsers()
         {
             var users = await _context.Users
-                .Include(u => u.Payees) // Include users this user owes
+                .Include(u => u.Payees)
                 .ThenInclude(debt => debt.ToUser)
-                .Include(u => u.Payers) // Include users who owe this user
+                .Include(u => u.Payers)
                 .ThenInclude(debt => debt.FromUser)
                 .ToListAsync();
 
@@ -79,11 +79,9 @@ namespace CashBackend.Controllers
                 Name = request.Name
             };
 
-            // Add the new user to the database
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            // Recalculate balances and update payees/payers
             var users = await _context.Users
                 .Include(u => u.Payees)
                 .Include(u => u.Payers)
@@ -92,7 +90,6 @@ namespace CashBackend.Controllers
 
             RecalculateBalances(users, items);
 
-            // Fetch the updated newUser with payees and payers
             var updatedUser = await _context.Users
                 .Include(u => u.Payees)
                 .ThenInclude(debt => debt.ToUser)
@@ -100,7 +97,6 @@ namespace CashBackend.Controllers
                 .ThenInclude(debt => debt.FromUser)
                 .FirstOrDefaultAsync(u => u.Id == newUser.Id);
 
-            // Create the response object
             var response = new UserResponse
             {
                 Id = updatedUser.Id,
