@@ -32,107 +32,85 @@ namespace CashBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<ItemPriceResponse>> PostItem(ItemRequest request)
         {
-
             var user = await _context.Users.FindAsync(request.UserId);
-
             if (user == null)
             {
                 return NotFound($"User with ID {request.UserId} not found.");
             }
 
-            var itemRequest = new Item()
+            var newItem = new Item
             {
                 Name = request.Name,
                 Price = request.Price,
-                UserId = request.UserId,
+                UserId = request.UserId
             };
 
-            _context.Items.Add(itemRequest);
+            _context.Items.Add(newItem);
             await _context.SaveChangesAsync();
 
-            var createdItem = await _context.Items
-                                    .Include(i => i.User)
-                                    .FirstOrDefaultAsync(i => i.Id == itemRequest.Id);
+            await UpdateDebtsForItemAddition(newItem);
 
-            var itemResponse = new ItemPriceResponse
+            return CreatedAtAction(nameof(GetItem), new { id = newItem.Id }, new ItemPriceResponse
             {
-                Id = itemRequest.Id,
-                Name = itemRequest.Name,
-                Price = itemRequest.Price,
-                UserId = itemRequest.UserId,
-                User = itemRequest.User
-            };
-
-            var users = await _context.Users.ToListAsync();
-            var items = await _context.Items.ToListAsync();
-            RecalculateBalances(users, items);
-
-            return CreatedAtAction(nameof(GetItem), new { id = itemRequest.Id }, itemResponse);
+                Id = newItem.Id,
+                Name = newItem.Name,
+                Price = newItem.Price,
+                UserId = newItem.UserId,
+                User = newItem.User
+            });
         }
-        private void RecalculateBalances(List<User> users, List<Item> items)
+
+        private async Task UpdateDebtsForItemAddition(Item item)
         {
-            decimal totalExpenses = items.Sum(i => i.Price);
+            var users = await _context.Users.ToListAsync();
             int userCount = users.Count;
-            decimal fairShare = userCount > 0 ? totalExpenses / userCount : 0;
 
-            var userContributions = items
-                .GroupBy(i => i.UserId)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Sum(i => i.Price)
-                );
+            if (userCount <= 1) return;
 
-            _context.UserDebts.RemoveRange(_context.UserDebts);
-            _context.SaveChanges();
+            decimal splitCost = item.Price / userCount;
 
             foreach (var user in users)
             {
-                userContributions.TryGetValue(user.Id, out var contribution);
-                user.Balance = contribution - fairShare;
-            }
+                if (user.Id == item.UserId) continue;
 
-            foreach (var user in users)
-            {
-                foreach (var otherUser in users)
+                var existingDebt = await _context.UserDebts
+                    .FirstOrDefaultAsync(d => d.FromUserId == user.Id && d.ToUserId == item.UserId);
+
+                if (existingDebt == null)
                 {
-                    if (user.Id == otherUser.Id) continue;
-
-                    decimal difference = user.Balance - otherUser.Balance;
-
-                    if (difference < 0)
+                    _context.UserDebts.Add(new UserDebt
                     {
-                        _context.UserDebts.Add(new UserDebt
-                        {
-                            FromUserId = user.Id,
-                            ToUserId = otherUser.Id,
-                            Amount = -difference
-                        });
-                    }
+                        FromUserId = user.Id,
+                        ToUserId = item.UserId,
+                        Amount = splitCost
+                    });
+                }
+                else
+                {
+                    existingDebt.Amount += splitCost;
                 }
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserResponse>> GetItem(int id)
+        public async Task<ActionResult<ItemPriceResponse>> GetItem(int id)
         {
             var item = await _context.Items.FindAsync(id);
-
             if (item == null)
             {
                 return NotFound();
             }
-            var response = new ItemPriceResponse
+
+            return Ok(new ItemPriceResponse
             {
                 Id = item.Id,
                 Name = item.Name,
                 Price = item.Price,
                 UserId = item.UserId,
                 User = item.User
-
-            };
-            return Ok(response);
+            });
         }
     }
 }

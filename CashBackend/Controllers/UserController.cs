@@ -26,11 +26,10 @@ namespace CashBackend.Controllers
                 .ThenInclude(debt => debt.FromUser)
                 .ToListAsync();
 
-            var userResponses = users.Select(user => new UserResponse
+            return Ok(users.Select(user => new UserResponse
             {
                 Id = user.Id,
                 Name = user.Name,
-                Balance = user.Balance,
                 Payees = user.Payees.Select(debt => new PayeeResponse
                 {
                     PayeeId = debt.ToUserId,
@@ -43,29 +42,9 @@ namespace CashBackend.Controllers
                     PayerName = debt.FromUser.Name,
                     AmountOwed = debt.Amount
                 }).ToList()
-            });
-
-            return Ok(userResponses);
+            }));
         }
 
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserResponse>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var response = new UserResponse
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Balance = user.Balance
-            };
-            return Ok(response);
-        }
         [HttpPost]
         public async Task<ActionResult<UserResponse>> PostUser(UserRequest request)
         {
@@ -82,114 +61,68 @@ namespace CashBackend.Controllers
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            var users = await _context.Users
-                .Include(u => u.Payees)
-                .Include(u => u.Payers)
-                .ToListAsync();
-            var items = await _context.Items.ToListAsync();
+            await UpdateDebtsForNewUser(newUser);
 
-            RecalculateBalances(users, items);
-
-            var updatedUser = await _context.Users
-                .Include(u => u.Payees)
-                .ThenInclude(debt => debt.ToUser)
-                .Include(u => u.Payers)
-                .ThenInclude(debt => debt.FromUser)
-                .FirstOrDefaultAsync(u => u.Id == newUser.Id);
-
-            var response = new UserResponse
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, new UserResponse
             {
-                Id = updatedUser.Id,
-                Name = updatedUser.Name,
-                Balance = updatedUser.Balance,
-                Payees = updatedUser.Payees.Select(debt => new PayeeResponse
-                {
-                    PayeeId = debt.ToUserId,
-                    PayeeName = debt.ToUser.Name,
-                    AmountOwed = debt.Amount
-                }).ToList(),
-                Payers = updatedUser.Payers.Select(debt => new PayerResponse
-                {
-                    PayerId = debt.FromUserId,
-                    PayerName = debt.FromUser.Name,
-                    AmountOwed = debt.Amount
-                }).ToList()
-            };
-
-            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
+                Id = newUser.Id,
+                Name = newUser.Name,
+                Payees = new List<PayeeResponse>(),
+                Payers = new List<PayerResponse>()
+            });
         }
 
-        private void RecalculateBalances(List<User> users, List<Item> items)
+        private async Task UpdateDebtsForNewUser(User newUser)
         {
-            decimal totalExpenses = items.Sum(i => i.Price);
-            int userCount = users.Count;
-            decimal fairShare = userCount > 0 ? totalExpenses / userCount : 0;
+            var users = await _context.Users.ToListAsync();
+            var items = await _context.Items.ToListAsync();
 
-            var userContributions = items
-                .GroupBy(i => i.UserId)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Sum(i => i.Price)
-                );
+            if (users.Count <= 1) return;
 
-            _context.UserDebts.RemoveRange(_context.UserDebts);
-            _context.SaveChanges();
-
-            foreach (var user in users)
+            foreach (var item in items)
             {
-                userContributions.TryGetValue(user.Id, out var contribution);
-                user.Balance = contribution - fairShare;
-            }
+                decimal splitCost = item.Price / users.Count;
 
-            foreach (var user in users)
-            {
-                foreach (var otherUser in users)
+                foreach (var user in users)
                 {
-                    if (user.Id == otherUser.Id) continue;
+                    if (user.Id == item.UserId) continue;
 
-                    decimal difference = user.Balance - otherUser.Balance;
+                    var existingDebt = await _context.UserDebts
+                        .FirstOrDefaultAsync(d => d.FromUserId == user.Id && d.ToUserId == item.UserId);
 
-                    if (difference < 0)
+                    if (existingDebt == null)
                     {
                         _context.UserDebts.Add(new UserDebt
                         {
                             FromUserId = user.Id,
-                            ToUserId = otherUser.Id,
-                            Amount = -difference
+                            ToUserId = item.UserId,
+                            Amount = splitCost
                         });
+                    }
+                    else
+                    {
+                        existingDebt.Amount += splitCost;
                     }
                 }
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        [HttpGet("{id}/detailed-balance")]
-        public async Task<ActionResult> GetDetailedUserBalances(int id)
-        {
-            var user = await _context.Users
-                .Include(u => u.Payees)
-                .ThenInclude(debt => debt.ToUser)
-                .Include(u => u.Payers)
-                .ThenInclude(debt => debt.FromUser)
-                .FirstOrDefaultAsync(u => u.Id == id);
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponse>> GetUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound($"User with ID {id} not found.");
+                return NotFound();
             }
 
-            var detailedBalances = new List<string>();
-
-            foreach (var debt in user.Payees)
+            return Ok(new UserResponse
             {
-                detailedBalances.Add($"{user.Name} owes {debt.Amount:C} to {debt.ToUser.Name}.");
-            }
-
-            foreach (var debt in user.Payers)
-            {
-                detailedBalances.Add($"{debt.FromUser.Name} owes {debt.Amount:C} to {user.Name}.");
-            }
-            return Ok(detailedBalances);
+                Id = user.Id,
+                Name = user.Name
+            });
         }
     }
 }

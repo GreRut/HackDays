@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CashBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250118203712_Init")]
+    [Migration("20250119101418_Init")]
     partial class Init
     {
         /// <inheritdoc />
