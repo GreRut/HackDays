@@ -64,7 +64,6 @@ function RouteComponent() {
       if (response.success) {
         const updatedData = await userDebtFetch(currentUserId);
         setDebts(updatedData || []);
-        alert("Payment processed successfully.");
       } else {
         console.error("Failed to process payment: ", response.error);
       }
@@ -84,25 +83,27 @@ function RouteComponent() {
           </h2>
           <div className="flex flex-col gap-4">
             {debts.length > 0 ? (
-              debts.map((debt, index) => (
-                <div key={index} className="card bg-base-200 shadow-xl w-full">
-                  <div className="card-body text-center">
-                    <p>
-                      {debt.fromUserName} owes {debt.toUserName}: $
-                      {debt.amount.toFixed(2)}
-                    </p>
-                    {debt.fromUserId === currentUserId && (
-                      <button
-                        className="btn bg-prim mt-2"
-                        disabled={loading}
-                        onClick={() => onPayNow(debt)}
-                      >
-                        {loading ? "Processing..." : "Pay Now"}
-                      </button>
-                    )}
+              debts
+                .filter((debt) => debt.amount > 0)
+                .map((debt, index) => (
+                  <div key={index} className="card bg-base-200 shadow-xl w-full">
+                    <div className="card-body text-center">
+                      <p>
+                        {debt.fromUserName} owes {debt.toUserName}: $
+                        {debt.amount.toFixed(2)}
+                      </p>
+                      {debt.fromUserId === currentUserId && (
+                        <button
+                          className="btn bg-prim mt-2"
+                          disabled={loading}
+                          onClick={() => onPayNow(debt)}
+                        >
+                          {loading ? "Processing..." : "Pay Now"}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
             ) : (
               <p className="text-2xl text-center">
                 No debts available for this user.
