@@ -92,10 +92,84 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["UserResponse"];
-                        "application/json": components["schemas"]["UserResponse"];
-                        "text/json": components["schemas"]["UserResponse"];
+                        "text/plain": components["schemas"]["ItemPriceResponse"];
+                        "application/json": components["schemas"]["ItemPriceResponse"];
+                        "text/json": components["schemas"]["ItemPriceResponse"];
                     };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/Payment/transfer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["PaymentRequest"];
+                    "text/json": components["schemas"]["PaymentRequest"];
+                    "application/*+json": components["schemas"]["PaymentRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/Payment/{id}/payment-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -279,6 +353,14 @@ export interface components {
             payerName?: string | null;
             /** Format: double */
             amountOwed?: number;
+        };
+        PaymentRequest: {
+            /** Format: int32 */
+            fromUserId?: number;
+            /** Format: int32 */
+            toUserId?: number;
+            /** Format: double */
+            amount?: number;
         };
         User: {
             /** Format: int32 */

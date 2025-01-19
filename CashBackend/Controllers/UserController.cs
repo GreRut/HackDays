@@ -124,5 +124,50 @@ namespace CashBackend.Controllers
                 Name = user.Name
             });
         }
+
+        [HttpGet("{id}/detailed-balance")]
+        public async Task<ActionResult> GetDetailedUserBalances(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Payees)
+                .ThenInclude(debt => debt.ToUser)
+                .Include(u => u.Payers)
+                .ThenInclude(debt => debt.FromUser)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound($"User with ID {id} not found.");
+            }
+
+            var detailedBalances = new List<object>();
+
+            foreach (var debt in user.Payees)
+            {
+                detailedBalances.Add(new
+                {
+                    fromUserId = id,
+                    fromUserName = user.Name,
+                    toUserId = debt.ToUserId,
+                    toUserName = debt.ToUser.Name,
+                    amount = debt.Amount
+                });
+            }
+
+            foreach (var debt in user.Payers)
+            {
+                detailedBalances.Add(new
+                {
+                    fromUserId = debt.FromUserId,
+                    fromUserName = debt.FromUser.Name,
+                    toUserId = id,
+                    toUserName = user.Name,
+                    amount = debt.Amount
+                });
+            }
+
+            return Ok(detailedBalances);
+        }
+
     }
 }
