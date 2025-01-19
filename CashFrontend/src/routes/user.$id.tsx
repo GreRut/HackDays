@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { userDebtFetch } from "../utils/fetchUsers";
+import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import { useState } from "react";
 
@@ -29,6 +29,7 @@ function RouteComponent() {
   const currentUserId = Number(params.id);
   const [debts, setDebts] = useState<Debt[]>(data || []);
   const [newExpense, setNewExpense] = useState<Expense>({ name: "", price: 0 });
+  const [loading, setLoading] = useState(false);
 
   const onAddExpense = async (): Promise<void> => {
     try {
@@ -51,9 +52,26 @@ function RouteComponent() {
   };
 
   const onPayNow = async (debt: Debt): Promise<void> => {
-    console.log(
-      `Paying debt from ${debt.fromUserName} to ${debt.toUserName} for $${debt.amount}`
-    );
+    setLoading(true);
+    try {
+      const response = await payDebt({
+        fromUserId: debt.fromUserId,
+        toUserId: debt.toUserId,
+        amount: debt.amount,
+      });
+
+      if (response.success) {
+        const updatedData = await userDebtFetch(currentUserId);
+        setDebts(updatedData || []);
+        alert("Payment processed successfully.");
+      } else {
+        console.error("Failed to process payment: ", response.error);
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,15 +83,15 @@ function RouteComponent() {
             <div key={index} className="card bg-base-200 w-96 shadow-xl">
               <div className="card-body">
                 <p>
-                  {debt.fromUserName} owes {debt.toUserName}: $
-                  {debt.amount.toFixed(2)}
+                  {debt.fromUserName} owes {debt.toUserName}: ${debt.amount.toFixed(2)}
                 </p>
                 {debt.fromUserId === currentUserId && (
                   <button
                     className="btn bg-prim mt-2"
+                    disabled={loading}
                     onClick={() => onPayNow(debt)}
                   >
-                    Pay Now
+                    {loading ? "Processing..." : "Pay Now"}
                   </button>
                 )}
               </div>
@@ -89,18 +107,14 @@ function RouteComponent() {
           type="text"
           placeholder="Expense Name"
           value={newExpense.name}
-          onChange={(e) =>
-            setNewExpense({ ...newExpense, name: e.target.value })
-          }
+          onChange={(e) => setNewExpense({ ...newExpense, name: e.target.value })}
           className="input input-bordered mr-2"
         />
         <input
           type="number"
           placeholder="Expense Price"
           value={newExpense.price}
-          onChange={(e) =>
-            setNewExpense({ ...newExpense, price: Number(e.target.value) })
-          }
+          onChange={(e) => setNewExpense({ ...newExpense, price: Number(e.target.value) })}
           className="input input-bordered mr-2"
         />
         <button className="btn bg-prim" onClick={onAddExpense}>

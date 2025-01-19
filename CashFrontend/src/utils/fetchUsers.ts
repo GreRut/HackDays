@@ -20,3 +20,11 @@ export const userDebtFetch = (id: number) =>
       query: undefined,
     },
   });
+
+  export const payDebt = (PaymentRequest: { fromUserId: number, toUserId: number, amount: number }) =>
+      client.POST("/api/Payment/transfer", {
+        body: PaymentRequest,
+        params: {
+          query: undefined,
+        },
+  });
