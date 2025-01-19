@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import { useState } from "react";
+import '../App.css';
+
 
 interface Debt {
   fromUserId: number;
@@ -75,8 +77,8 @@ function RouteComponent() {
   };
 
   return (
-    <div>
-      <h2>User Debts</h2>
+    <div className="h-screen bg-[url('https://unsplash.com/photos/an-aerial-view-of-a-lush-green-forest-BOJ_pat2MPg')] bg-cover bg-center">
+      <h2 className="text-red-600">User Debts</h2>
       <div className="flex flex-col gap-4">
         {debts.length > 0 ? (
           debts.map((debt, index) => (

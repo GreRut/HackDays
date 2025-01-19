@@ -4,17 +4,17 @@ import { components } from "../lib/api/v1";
 
 type User = components["schemas"]["User"];
 
-const User = ({ id, name, balance }: User) => {
+const User = ({ id, name}: User) => {
   return (
-    <div>
+    <div className="flex justify-center items-center space-y-10">
       <Link
         to="/user/$id"
         params={{
           id: `${id}`,
         }}
-        className="text-white"
+        className="p-2 flex gap-2 h-14 text-center text-3xl font-bold"
       >
-        {name} {balance}
+        {name}
       </Link>
     </div>
   );
