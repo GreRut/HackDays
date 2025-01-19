@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import { useState } from "react";
-import '../App.css';
-
+import "../App.css";
 
 interface Debt {
   fromUserId: number;
@@ -77,51 +76,66 @@ function RouteComponent() {
   };
 
   return (
-    <div className="h-screen bg-[url('https://unsplash.com/photos/an-aerial-view-of-a-lush-green-forest-BOJ_pat2MPg')] bg-cover bg-center">
-      <h2 className="text-red-600">User Debts</h2>
-      <div className="flex flex-col gap-4">
-        {debts.length > 0 ? (
-          debts.map((debt, index) => (
-            <div key={index} className="card bg-base-200 w-96 shadow-xl">
-              <div className="card-body">
-                <p>
-                  {debt.fromUserName} owes {debt.toUserName}: ${debt.amount.toFixed(2)}
-                </p>
-                {debt.fromUserId === currentUserId && (
-                  <button
-                    className="btn bg-prim mt-2"
-                    disabled={loading}
-                    onClick={() => onPayNow(debt)}
-                  >
-                    {loading ? "Processing..." : "Pay Now"}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>No debts available for this user.</p>
-        )}
-      </div>
-      <div className="mt-4">
-        <h3>Add Expense</h3>
-        <input
-          type="text"
-          placeholder="Expense Name"
-          value={newExpense.name}
-          onChange={(e) => setNewExpense({ ...newExpense, name: e.target.value })}
-          className="input input-bordered mr-2"
-        />
-        <input
-          type="number"
-          placeholder="Expense Price"
-          value={newExpense.price}
-          onChange={(e) => setNewExpense({ ...newExpense, price: Number(e.target.value) })}
-          className="input input-bordered mr-2"
-        />
-        <button className="btn bg-prim" onClick={onAddExpense}>
-          Add Expense
-        </button>
+    <div className="bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen">
+      <div className="flex justify-center pt-20">
+        <div className="card bg-neutral text-neutral-content w-96 space-y-5 p-10">
+          <h2 className="text-primary text-3xl font-bold text-center">
+            User Debts
+          </h2>
+          <div className="flex flex-col gap-4">
+            {debts.length > 0 ? (
+              debts.map((debt, index) => (
+                <div key={index} className="card bg-base-200 shadow-xl w-full">
+                  <div className="card-body text-center">
+                    <p>
+                      {debt.fromUserName} owes {debt.toUserName}: $
+                      {debt.amount.toFixed(2)}
+                    </p>
+                    {debt.fromUserId === currentUserId && (
+                      <button
+                        className="btn bg-prim mt-2"
+                        disabled={loading}
+                        onClick={() => onPayNow(debt)}
+                      >
+                        {loading ? "Processing..." : "Pay Now"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-2xl text-center">
+                No debts available for this user.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col items-center mt-4 space-y-4">
+            <input
+              type="text"
+              placeholder="Expense Name"
+              value={newExpense.name}
+              onChange={(e) =>
+                setNewExpense({ ...newExpense, name: e.target.value })
+              }
+              className="input input-bordered w-full"
+            />
+            <input
+              type="number"
+              placeholder="Expense Price"
+              value={newExpense.price}
+              onChange={(e) =>
+                setNewExpense({ ...newExpense, price: Number(e.target.value) })
+              }
+              className="input input-bordered w-full"
+            />
+            <button
+              className="btn bg-prim w-full text-xl font-bold"
+              onClick={onAddExpense}
+            >
+              Add Expense
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
