@@ -1,4 +1,3 @@
-// import { NavLink } from "react-router-dom";
 import { Link } from "@tanstack/react-router";
 import { components } from "../lib/api/v1";
 
@@ -6,7 +5,7 @@ type User = components["schemas"]["User"];
 
 const User = ({ id, name}: User) => {
   return (
-    <div className="flex justify-center items-center space-y-10">
+    <div className="flex justify-center items-center">
       <Link
         to="/user/$id"
         params={{
