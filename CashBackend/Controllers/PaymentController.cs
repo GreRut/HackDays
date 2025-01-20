@@ -76,7 +76,7 @@ namespace CashBackend.Controllers
                 }
             });
         }
-        
+
 
         [HttpGet("{id}/payment-history")]
         public async Task<ActionResult> GetPaymentHistory(int id)
@@ -96,6 +96,22 @@ namespace CashBackend.Controllers
                 .ToListAsync();
 
             return Ok(payments);
+        }
+        [HttpGet("/all-payments")]
+        public async Task<ActionResult> GetAllPayments()
+        {
+            var allPayments = await _context.Payments
+                .Select(p => new
+                {
+                    p.Id,
+                    p.FromUserId,
+                    p.ToUserId,
+                    p.Amount,
+                    p.Timestamp
+                })
+                .ToListAsync();
+
+            return Ok(allPayments);
         }
     }
 }
