@@ -12,21 +12,21 @@ type UserListProps = {
 const UserList = ({ users }: UserListProps) => {
   return (
     <div
-      className="h-screen overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: "url(../../Abstract3DBackground.jpg)" }}
+      // className="h-screen overflow-hidden bg-cover bg-center"
+      // style={{ backgroundImage: "url(../../Abstract3DBackground.jpg)" }}
     >
-      <div className="p-5 flex justify-center items-center h-30">
+      <div className="flex justify-center h-30">
         <Link
           to="/"
           className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
-          no-underline w-[22rem] h-[10rem] bg-sec text-prim text-center text-4xl
-          font-bold flex justify-center items-center"
+          no-underline w-96 h-[10rem] bg-sec text-prim text-center text-4xl
+          font-bold flex "
         >
           Group
         </Link>
       </div>
 
-      <div className="flex justify-center pt-20">
+      <div className="flex justify-center py-10">
         <div className="card bg-neutral text-neutral-content w-96 space-y-5 py-10">
           {users.map((user) => (
             <User
