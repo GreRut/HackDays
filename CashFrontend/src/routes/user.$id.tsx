@@ -75,7 +75,12 @@ function RouteComponent() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen">
+    <div
+      className="h-screen overflow-hidden bg-cover bg-center"
+      style={{
+        backgroundImage: "url(../../public/Abstract3DBackground.jpg)",
+      }}
+    >
       <div className="flex justify-center pt-20">
         <div className="card bg-neutral text-neutral-content w-96 space-y-5 p-10">
           <h2 className="text-primary text-3xl font-bold text-center">
@@ -86,7 +91,10 @@ function RouteComponent() {
               debts
                 .filter((debt) => debt.amount > 0)
                 .map((debt, index) => (
-                  <div key={index} className="card bg-base-200 shadow-xl w-full">
+                  <div
+                    key={index}
+                    className="card bg-base-200 shadow-xl w-full"
+                  >
                     <div className="card-body text-center">
                       <p>
                         {debt.fromUserName} owes {debt.toUserName}: $
