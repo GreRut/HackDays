@@ -32,3 +32,11 @@ export const payDebt = (PaymentRequest: {
       query: undefined,
     },
   });
+
+export const postUser= (user: { name: string;}) =>
+    client.POST("/api/Users", {
+      body: user,
+      params: {
+        query: undefined,
+      },
+});
