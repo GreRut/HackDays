@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import { useState } from "react";
@@ -81,6 +81,20 @@ function RouteComponent() {
         backgroundImage: "url(../../public/Abstract3DBackground.jpg)",
       }}
     >
+      <div className="p-5 flex justify-center items-center h-30">
+        <Link
+          to="/"
+          className="btn
+                          hover:bg-terc
+                          hover:border-terc rounded-lg
+                          border-sec no-underline
+                          w-[22rem] h-[10rem]
+                          bg-sec
+                          text-prim text-center text-4xl font-bold flex justify-center items-center"
+        >
+          Group
+        </Link>
+      </div>
       <div className="flex justify-center pt-20">
         <div className="card bg-neutral text-neutral-content w-96 space-y-5 p-10">
           <h2 className="text-primary text-3xl font-bold text-center">
