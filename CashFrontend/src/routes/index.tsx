@@ -53,7 +53,7 @@ function RouteComponent() {
         </button>
         <div className="flex justify-center h-30">
           <Link
-            to="/"
+            to="/statistics"
             className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
             no-underline w-96 h-12 bg-sec text-prim text-center text-xl
             font-bold flex "

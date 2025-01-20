@@ -11,10 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as StatisticsImport } from './routes/statistics'
 import { Route as IndexImport } from './routes/index'
 import { Route as UserIdImport } from './routes/user.$id'
 
 // Create/Update Routes
+
+const StatisticsRoute = StatisticsImport.update({
+  id: '/statistics',
+  path: '/statistics',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -39,6 +46,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/statistics': {
+      id: '/statistics'
+      path: '/statistics'
+      fullPath: '/statistics'
+      preLoaderRoute: typeof StatisticsImport
+      parentRoute: typeof rootRoute
+    }
     '/user/$id': {
       id: '/user/$id'
       path: '/user/$id'
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/statistics': typeof StatisticsRoute
   '/user/$id': typeof UserIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/statistics': typeof StatisticsRoute
   '/user/$id': typeof UserIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/statistics': typeof StatisticsRoute
   '/user/$id': typeof UserIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/user/$id'
+  fullPaths: '/' | '/statistics' | '/user/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/user/$id'
-  id: '__root__' | '/' | '/user/$id'
+  to: '/' | '/statistics' | '/user/$id'
+  id: '__root__' | '/' | '/statistics' | '/user/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StatisticsRoute: typeof StatisticsRoute
   UserIdRoute: typeof UserIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StatisticsRoute: StatisticsRoute,
   UserIdRoute: UserIdRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/statistics",
         "/user/$id"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/statistics": {
+      "filePath": "statistics.tsx"
     },
     "/user/$id": {
       "filePath": "user.$id.tsx"
