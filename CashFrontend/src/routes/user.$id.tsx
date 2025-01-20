@@ -1,15 +1,25 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { userDebtFetch, payDebt } from "../utils/fetchUsers";
+import { userDebtFetch, userFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import "../App.css";
 
 export const Route = createFileRoute("/user/$id")({
   component: RouteComponent,
-  loader: async ({ params }) => (await userDebtFetch(Number(params.id))).data,
+  loader: async ({ params }) => {
+    const userId = Number(params.id);
+    const [debtsResponse, userResponse] = await Promise.all([
+      userDebtFetch(userId),
+      userFetch(userId),
+    ]);
+    return {
+      debts: debtsResponse.data,
+      user: userResponse.data,
+    };
+  },
 });
 
 function RouteComponent() {
-  const debts = Route.useLoaderData();
+  const {debts, user} = Route.useLoaderData();
   const { id } = Route.useParams();
   const userId = Number(id);
   const router = useRouter();
@@ -41,7 +51,7 @@ function RouteComponent() {
       <div className="flex justify-center pt-20">
         <div className="card bg-neutral text-neutral-content w-96 p-10 space-y-5">
           <h2 className="text-primary text-3xl font-bold text-center">
-            User Debts
+            {user.name}
           </h2>
           {debts.length ? (
             debts.map(
