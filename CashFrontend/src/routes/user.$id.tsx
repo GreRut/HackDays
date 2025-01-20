@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
 import { useState } from "react";
@@ -78,7 +78,7 @@ function RouteComponent() {
     <div
       className="h-screen overflow-hidden bg-cover bg-center"
       style={{
-        backgroundImage: "url(../../public/Abstract3DBackground.jpg)",
+        backgroundImage: "url(../../Abstract3DBackground.jpg)",
       }}
     >
       <div className="p-5 flex justify-center items-center h-30">

@@ -9,7 +9,7 @@ const UserList = () => {
       <div
         className="h-screen overflow-hidden bg-cover bg-center"
         style={{
-          backgroundImage: "url(../../public/Abstract3DBackground.jpg)",
+          backgroundImage: "url(../../Abstract3DBackground.jpg)",
         }}
       >
         <div className="p-5 flex justify-center items-center h-30">
