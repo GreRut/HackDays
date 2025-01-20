@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import UserList from "../components/listUsers";
 import { userListFetch, postUser } from "../utils/fetchUsers";
 
@@ -38,7 +38,7 @@ function RouteComponent() {
       style={{ backgroundImage: "url(./Abstract3DBackground.jpg)" }}
     >
       <UserList users={users} />
-      <div className="flex flex-col items-center gap-4 mt-6 w-96">
+      <div className="flex flex-col items-center gap-4 w-96">
         <input
           id="user-name"
           type="text"
@@ -51,6 +51,16 @@ function RouteComponent() {
         >
           Add User
         </button>
+        <div className="flex justify-center h-30">
+          <Link
+            to="/"
+            className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
+            no-underline w-96 h-12 bg-sec text-prim text-center text-xl
+            font-bold flex "
+          >
+            Stastics
+          </Link>
+        </div>
       </div>
     </div>
   );
