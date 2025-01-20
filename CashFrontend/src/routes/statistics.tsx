@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
+import "../App.css";
 
 export const Route = createFileRoute("/statistics")({
   component: RouteComponent,
@@ -9,44 +10,60 @@ export const Route = createFileRoute("/statistics")({
 function RouteComponent() {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const data = [
-    {
-      id: 1,
-      fromUserId: 1,
-      toUserId: 3,
-      amount: 5,
-      timestamp: "2025-01-20T17:46:49.3569951",
-    },
-    {
-      id: 2,
-      fromUserId: 2,
-      toUserId: 3,
-      amount: 5,
-      timestamp: "2025-01-20T17:46:52.8687134",
-    },
-    {
-      id: 3,
-      fromUserId: 4,
-      toUserId: 3,
-      amount: 5,
-      timestamp: "2025-01-20T17:46:55.8825608",
-    },
+  const sampleData = [
+    { id: 1, fromUserId: 1, toUserId: 3, amount: 5 },
+    { id: 2, fromUserId: 2, toUserId: 3, amount: 10 },
+    { id: 3, fromUserId: 4, toUserId: 3, amount: 15 },
   ];
 
   useEffect(() => {
     if (svgRef.current) {
-      drawNetwork(svgRef.current, data);
+      drawNetwork(svgRef.current, sampleData);
     }
-  }, [data]);
+  }, [sampleData]);
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <svg ref={svgRef} width="800" height="600" />
+    <div
+      className="h-screen bg-cover bg-center flex flex-col items-center"
+      style={{
+        backgroundImage: "url(./Abstract3DBackground.jpg)",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="p-5 flex justify-center">
+        <Link
+          to="/"
+          className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
+                     no-underline w-96 h-[10rem] bg-sec text-prim
+                     text-4xl font-bold flex items-center justify-center"
+        >
+          Group
+        </Link>
+      </div>
+
+      <div className="flex justify-center pt-3 w-full">
+        <div
+          className="card bg-base-100 shadow-xl"
+          style={{
+            width: "90",
+            height: "65vh",
+          }}
+        >
+          <h3 className="text-center text-2xl font-bold">Transaction Graph</h3>
+          <svg
+            ref={svgRef}
+            width="100%"
+            height="100%"
+            viewBox="0 0 750 1000"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </div>
+      </div>
     </div>
   );
 }
 
-function drawNetwork(svgElement: SVGSVGElement, transactions: typeof data) {
+function drawNetwork(svgElement: SVGSVGElement, transactions: any[]) {
   const nodes = Array.from(
     new Set(transactions.flatMap((t) => [t.fromUserId, t.toUserId]))
   ).map((id) => ({ id }));
@@ -60,16 +77,18 @@ function drawNetwork(svgElement: SVGSVGElement, transactions: typeof data) {
   const svg = d3.select(svgElement);
   svg.selectAll("*").remove();
 
-  const width = +svg.attr("width");
-  const height = +svg.attr("height");
-
+  const width = 750; 
+  const height = 1000; 
   const simulation = d3
     .forceSimulation(nodes)
     .force(
       "link",
-      d3.forceLink(links).id((d: any) => d.id).distance(200)
+      d3
+        .forceLink(links)
+        .id((d: any) => d.id)
+        .distance(300)
     )
-    .force("charge", d3.forceManyBody().strength(-500))
+    .force("charge", d3.forceManyBody().strength(-800)) 
     .force("center", d3.forceCenter(width / 2, height / 2));
 
   const link = svg
@@ -88,7 +107,7 @@ function drawNetwork(svgElement: SVGSVGElement, transactions: typeof data) {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-    .attr("r", 10)
+    .attr("r", 15)
     .attr("fill", "steelblue")
     .call(
       d3
@@ -114,8 +133,8 @@ function drawNetwork(svgElement: SVGSVGElement, transactions: typeof data) {
     .selectAll("text")
     .data(links)
     .join("text")
-    .attr("font-size", 12)
-    .attr("fill", "black")
+    .attr("font-size", 14)
+    .attr("fill", "white")
     .text((d) => `Amount: ${d.amount}`);
 
   simulation.on("tick", () => {
