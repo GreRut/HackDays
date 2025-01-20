@@ -2,25 +2,31 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import "../App.css";
+import { paymentFetch } from "../utils/fetchPayments";
 
 export const Route = createFileRoute("/statistics")({
   component: RouteComponent,
+    loader: async () => {
+      const response = await paymentFetch();
+      return response.data;
+    },
 });
 
 function RouteComponent() {
   const svgRef = useRef<SVGSVGElement>(null);
-
-  const sampleData = [
-    { id: 1, fromUserId: 1, toUserId: 3, amount: 5 },
-    { id: 2, fromUserId: 2, toUserId: 3, amount: 10 },
-    { id: 3, fromUserId: 4, toUserId: 3, amount: 15 },
-  ];
+  const transactions = Route.useLoaderData();
+  console.log(transactions);
+  const formattedTransactions = transactions.map(({ fromUserId, toUserId, amount }) => ({
+    fromUserId,
+    toUserId,
+    amount,
+  }));
 
   useEffect(() => {
     if (svgRef.current) {
-      drawNetwork(svgRef.current, sampleData);
+      drawNetwork(svgRef.current, formattedTransactions);
     }
-  }, [sampleData]);
+  }, [formattedTransactions]);
 
   return (
     <div

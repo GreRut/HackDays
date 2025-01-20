@@ -107,7 +107,6 @@ namespace CashBackend.Controllers
                     p.FromUserId,
                     p.ToUserId,
                     p.Amount,
-                    p.Timestamp
                 })
                 .ToListAsync();
 
