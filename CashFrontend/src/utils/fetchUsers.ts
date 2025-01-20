@@ -3,7 +3,7 @@ import type { paths } from "../lib/api/v1";
 
 const client = createClient<paths>({ baseUrl: "http://localhost:5274/" });
 
-export const userListFetch = await client.GET("/api/Users", {});
+export const userListFetch = () => client.GET("/api/Users", {});
 
 export const userFetch = (id: number) =>
   client.GET("/api/Users/{id}", {
@@ -21,10 +21,14 @@ export const userDebtFetch = (id: number) =>
     },
   });
 
-  export const payDebt = (PaymentRequest: { fromUserId: number, toUserId: number, amount: number }) =>
-      client.POST("/api/Payment/transfer", {
-        body: PaymentRequest,
-        params: {
-          query: undefined,
-        },
+export const payDebt = (PaymentRequest: {
+  fromUserId: number;
+  toUserId: number;
+  amount: number;
+}) =>
+  client.POST("/api/Payment/transfer", {
+    body: PaymentRequest,
+    params: {
+      query: undefined,
+    },
   });

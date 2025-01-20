@@ -19,7 +19,7 @@ export const Route = createFileRoute("/user/$id")({
 });
 
 function RouteComponent() {
-  const {debts, user} = Route.useLoaderData();
+  const { debts, user } = Route.useLoaderData();
   const { id } = Route.useParams();
   const userId = Number(id);
   const router = useRouter();
@@ -28,9 +28,19 @@ function RouteComponent() {
     try {
       await action();
       router.invalidate();
+      router.invalidate({
+        filter: (route) => {
+          return route.routeId == "/";
+        },
+      });
     } catch (error) {
       console.error(error);
       router.invalidate();
+      router.invalidate({
+        filter: (route) => {
+          return route.routeId == "/";
+        },
+      });
     }
   };
 
@@ -44,7 +54,8 @@ function RouteComponent() {
           to="/"
           className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
                      no-underline w-[22rem] h-[10rem] bg-sec text-prim
-                     text-4xl font-bold flex items-center justify-center">
+                     text-4xl font-bold flex items-center justify-center"
+        >
           Group
         </Link>
       </div>
