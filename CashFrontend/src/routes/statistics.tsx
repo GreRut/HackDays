@@ -55,7 +55,7 @@ function RouteComponent() {
             height: "65vh",
           }}
         >
-          <h3 className="text-center text-2xl font-bold">Transaction Graph</h3>
+          <h3 className="text-center text-2xl font-bold pt-3">Transaction Graph</h3>
           <svg
             ref={svgRef}
             width="100%"
@@ -113,7 +113,7 @@ function drawNetwork(svgElement: SVGSVGElement, transactions: any[]) {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-    .attr("r", 15)
+    .attr("r", 25)
     .attr("fill", "steelblue")
     .call(
       d3
@@ -139,9 +139,8 @@ function drawNetwork(svgElement: SVGSVGElement, transactions: any[]) {
     .selectAll("text")
     .data(links)
     .join("text")
-    .attr("font-size", 14)
-    .attr("fill", "white")
-    .text((d) => `Amount: ${d.amount}`);
+    .attr("font-size", 25)
+    .attr("fill", "white");
 
   simulation.on("tick", () => {
     link
