@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { userDebtFetch, payDebt } from "../utils/fetchUsers";
 import { postItem } from "../utils/fetchItems";
-import { useState } from "react";
 import "../App.css";
 
 interface Debt {
@@ -16,6 +15,7 @@ interface Expense {
   name: string;
   price: number;
 }
+
 export const Route = createFileRoute("/user/$id")({
   component: RouteComponent,
   loader: async ({ params }: { params: { id: string } }) => {
@@ -28,25 +28,29 @@ function RouteComponent() {
   const debts = Route.useLoaderData() as Debt[];
   const params = Route.useParams<{ id: string }>();
   const currentUserId = Number(params.id);
-  // const [debts, setDebts] = useState<Debt[]>(data || []);
-  const [newExpense, setNewExpense] = useState<Expense>({ name: "", price: 0 });
-  const [loading, setLoading] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
-  const onAddExpense = async (): Promise<void> => {
-    postItem({
-      name: newExpense.name,
-      price: newExpense.price,
-      userId: currentUserId,
-    }).then(async (response) => {
+  const onAddExpense = async (name: string, price: number): Promise<void> => {
+    try {
+      const response = await postItem({
+        name,
+        price,
+        userId: currentUserId,
+      });
       if (response.data) {
         router.invalidate();
+      } else {
+        console.error("Failed to add expense:", response.error);
       }
-    });
+    } catch (error) {
+      console.error("Error adding expense:", error);
+    }
+    finally{
+      router.invalidate();
+    }
   };
 
   const onPayNow = async (debt: Debt): Promise<void> => {
-    setLoading(true);
     try {
       const response = await payDebt({
         fromUserId: currentUserId,
@@ -56,14 +60,12 @@ function RouteComponent() {
       if (response.success) {
         router.invalidate();
       } else {
-        console.error("Failed to process payment: ", response.error);
-        router.invalidate();
+        console.error("Failed to process payment:", response.error);
       }
     } catch (error) {
       console.error("Error processing payment:", error);
-      router.invalidate();
-    } finally {
-      setLoading(false);
+    }
+    finally{
       router.invalidate();
     }
   };
@@ -111,10 +113,9 @@ function RouteComponent() {
                       {debt.fromUserId === currentUserId && (
                         <button
                           className="btn bg-prim mt-2"
-                          disabled={loading}
                           onClick={() => onPayNow(debt)}
                         >
-                          {loading ? "Processing..." : "Pay Now"}
+                          Pay Now
                         </button>
                       )}
                     </div>
@@ -128,26 +129,38 @@ function RouteComponent() {
           </div>
           <div className="flex flex-col items-center mt-4 space-y-4">
             <input
+              id="expense-name"
               type="text"
               placeholder="Expense Name"
-              value={newExpense.name}
-              onChange={(e) =>
-                setNewExpense({ ...newExpense, name: e.target.value })
-              }
               className="input input-bordered w-full"
             />
             <input
+              id="expense-price"
               type="number"
               placeholder="Expense Price"
-              value={newExpense.price}
-              onChange={(e) =>
-                setNewExpense({ ...newExpense, price: Number(e.target.value) })
-              }
               className="input input-bordered w-full"
             />
             <button
               className="btn bg-prim w-full text-xl font-bold"
-              onClick={onAddExpense}
+              onClick={() => {
+                const nameInput = document.getElementById(
+                  "expense-name"
+                ) as HTMLInputElement;
+                const priceInput = document.getElementById(
+                  "expense-price"
+                ) as HTMLInputElement;
+
+                const name = nameInput.value.trim();
+                const price = parseFloat(priceInput.value);
+
+                if (name && !isNaN(price)) {
+                  onAddExpense(name, price);
+                  nameInput.value = "";
+                  priceInput.value = "";
+                } else {
+                  console.error("Invalid expense input.");
+                }
+              }}
             >
               Add Expense
             </button>
