@@ -16,61 +16,55 @@ interface Expense {
   name: string;
   price: number;
 }
-
 export const Route = createFileRoute("/user/$id")({
   component: RouteComponent,
   loader: async ({ params }: { params: { id: string } }) => {
-    return await userDebtFetch(Number.parseInt(params.id));
+    const fetchResponse = await userDebtFetch(Number.parseInt(params.id));
+    return fetchResponse.data;
   },
 });
 
 function RouteComponent() {
-  const { data } = Route.useLoaderData<Debt[]>();
+  const debts = Route.useLoaderData() as Debt[];
   const params = Route.useParams<{ id: string }>();
   const currentUserId = Number(params.id);
-  const [debts, setDebts] = useState<Debt[]>(data || []);
+  // const [debts, setDebts] = useState<Debt[]>(data || []);
   const [newExpense, setNewExpense] = useState<Expense>({ name: "", price: 0 });
   const [loading, setLoading] = useState(false);
+  const router = useRouter()
 
   const onAddExpense = async (): Promise<void> => {
-    try {
-      const response = await postItem({
-        name: newExpense.name,
-        price: newExpense.price,
-        userId: currentUserId,
-      });
-
+    postItem({
+      name: newExpense.name,
+      price: newExpense.price,
+      userId: currentUserId,
+    }).then(async (response) => {
       if (response.data) {
-        const updatedData = await userDebtFetch(currentUserId);
-        setDebts(updatedData || []);
-        setNewExpense({ name: "", price: 0 });
-      } else {
-        console.error("Failed to add expense: ", response.error);
+        router.invalidate();
       }
-    } catch (error) {
-      console.error("Error adding expense:", error);
-    }
+    });
   };
 
   const onPayNow = async (debt: Debt): Promise<void> => {
     setLoading(true);
     try {
       const response = await payDebt({
-        fromUserId: debt.fromUserId,
+        fromUserId: currentUserId,
         toUserId: debt.toUserId,
         amount: debt.amount,
       });
-
       if (response.success) {
-        const updatedData = await userDebtFetch(currentUserId);
-        setDebts(updatedData || []);
+        router.invalidate();
       } else {
         console.error("Failed to process payment: ", response.error);
+        router.invalidate();
       }
     } catch (error) {
       console.error("Error processing payment:", error);
+      router.invalidate();
     } finally {
       setLoading(false);
+      router.invalidate();
     }
   };
 
