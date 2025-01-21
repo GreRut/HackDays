@@ -52,7 +52,7 @@ function RouteComponent() {
       <div className="p-5 flex justify-center">
         <Link
           to="/"
-          className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
+          className="btn bg-slate-800  border-slate-800 text-slate-400 -terc rounded-lg border-sec
                      no-underline w-[22rem] h-[10rem] bg-sec text-prim
                      text-4xl font-bold flex items-center justify-center"
         >
@@ -61,7 +61,7 @@ function RouteComponent() {
       </div>
       <div className="flex justify-center pt-20">
         <div className="card bg-neutral text-neutral-content w-96 p-10 space-y-5">
-          <h2 className="text-primary text-3xl font-bold text-center">
+          <h2 className="text-indigo-600 text-3xl font-bold text-center">
             {user.name}
           </h2>
           {debts.length ? (
@@ -70,7 +70,7 @@ function RouteComponent() {
                 debt.amount > 0 && (
                   <div
                     key={i}
-                    className="card bg-base-200 shadow-xl w-full mb-4"
+                    className="card bg-slate-800 shadow-xl w-full mb-4"
                   >
                     <div className="card-body text-center">
                       <p>
@@ -79,7 +79,7 @@ function RouteComponent() {
                       </p>
                       {debt.fromUserId === userId && (
                         <button
-                          className="btn bg-prim mt-2"
+                          className="btn bg-slate-800  border-slate-800 text-slate-400 mt-2"
                           onClick={() =>
                             handleAction(() =>
                               payDebt({
@@ -107,16 +107,16 @@ function RouteComponent() {
               id="expense-name"
               type="text"
               placeholder="Expense Name"
-              className="input input-bordered w-full"
+              className="input input-bordered bg-slate-800  border-slate-800 w-full text-slate-400 "
             />
             <input
               id="expense-price"
               type="number"
               placeholder="Expense Price"
-              className="input input-bordered w-full"
+              className="input input-bordered bg-slate-800  border-slate-800 w-full text-slate-400 "
             />
             <button
-              className="btn bg-prim w-full text-xl font-bold"
+              className="btn bg-slate-800  border-slate-800 w-full text-slate-400  text-xl font-bold"
               onClick={() =>
                 handleAction(() => {
                   const name = (

@@ -43,18 +43,18 @@ function RouteComponent() {
           id="user-name"
           type="text"
           placeholder="Enter user name"
-          className="input input-bordered w-full text-xl"
+          className="input input-bordered bg-slate-800  border-slate-800 w-full text-slate-400  text-xl"
         />
         <button
-          className="btn bg-prim w-full text-xl font-bold"
+          className="btn bg-slate-800  border-slate-800 w-full text-slate-400  text-xl font-bold"
           onClick={handleAddUser}
         >
           Add User
         </button>
-        <div className="flex justify-center h-30">
+        <div className="flex justify-center h-30 pt-6">
           <Link
             to="/statistics"
-            className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
+            className="btn  bg-slate-800  border-slate-800 text-slate-400  rounded-lg
             no-underline w-96 h-12 bg-sec text-prim text-center text-xl
             font-bold flex "
           >

@@ -39,7 +39,7 @@ function RouteComponent() {
       <div className="p-5 flex justify-center">
         <Link
           to="/"
-          className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
+          className="btn  bg-slate-800  border-slate-800 text-slate-400  rounded-lg
                      no-underline w-96 h-[10rem] bg-sec text-prim
                      text-4xl font-bold flex items-center justify-center"
         >
@@ -49,7 +49,7 @@ function RouteComponent() {
 
       <div className="flex justify-center pt-3 w-full">
         <div
-          className="card bg-base-100 shadow-xl"
+          className="card bg-slate-800  border-slate-800 text-slate-400 shadow-xl"
           style={{
             width: "90",
             height: "65vh",

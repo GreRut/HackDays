@@ -18,8 +18,8 @@ const UserList = ({ users }: UserListProps) => {
       <div className="flex justify-center h-30">
         <Link
           to="/"
-          className="btn hover:bg-terc hover:border-terc rounded-lg border-sec
-          no-underline w-96 h-[10rem] bg-sec text-prim text-center text-4xl
+          className="btn bg-slate-800 rounded-lg border-slate-800
+          no-underline w-96 h-[10rem] text-slate-400  text-center text-4xl
           font-bold flex "
         >
           Group
